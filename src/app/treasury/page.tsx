@@ -63,7 +63,7 @@ export default function TreasuryPage() {
         {wallets.map((wallet) => (
           <div
             key={wallet.id}
-            className={`p-6 rounded-2xl border shadow-sm transition-all flex flex-col justify-between ${
+            className={`p-4 sm:p-6 rounded-2xl border shadow-sm transition-all flex flex-col justify-between ${
               wallet.is_default
                 ? 'bg-gradient-to-br from-[#1C0B1B] to-[#2F1127] text-white border-pink-900/40 shadow-md'
                 : 'bg-white border-slate-200 text-slate-900'
@@ -162,7 +162,7 @@ export default function TreasuryPage() {
 
         {/* Transactions Table */}
         <div className="overflow-x-auto">
-          <table className="w-full text-left rtl:text-right border-collapse text-xs">
+          <table className="w-full text-left rtl:text-right border-collapse text-xs min-w-[540px]">
             <thead>
               <tr className="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold uppercase tracking-wider text-[11px]">
                 <th className="py-2.5 px-4">{isRtl ? 'المرجع والوصف' : 'Reference & Description'}</th>

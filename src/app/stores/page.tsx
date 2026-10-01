@@ -53,7 +53,7 @@ export default function StoresPage() {
           return (
             <div
               key={store.id}
-              className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm hover:shadow-md hover:border-slate-300 transition-all space-y-4"
+              className="bg-white rounded-2xl border border-slate-200 p-4 sm:p-6 shadow-sm hover:shadow-md hover:border-slate-300 transition-all space-y-3.5 sm:space-y-4"
             >
               {/* Top Merchant Profile */}
               <div className="flex items-start justify-between">

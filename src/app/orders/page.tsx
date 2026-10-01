@@ -49,7 +49,6 @@ function OrdersWorkspaceContent() {
   // Filtered Orders
   const filteredOrders = useMemo(() => {
     return orders.filter((order) => {
-      // Search query (Order #, customer name, customer phone, zone)
       if (searchQuery.trim()) {
         const q = searchQuery.toLowerCase().trim();
         const matchesNumber = order.order_number.toLowerCase().includes(q);
@@ -62,17 +61,14 @@ function OrdersWorkspaceContent() {
         }
       }
 
-      // Status filter
       if (statusFilter !== 'all' && order.status !== statusFilter) {
         return false;
       }
 
-      // Store filter
       if (storeFilter !== 'all' && order.store_id !== storeFilter) {
         return false;
       }
 
-      // Driver filter
       if (driverFilter !== 'all') {
         if (driverFilter === 'unassigned') {
           if (order.driver_id !== null) return false;
@@ -81,7 +77,6 @@ function OrdersWorkspaceContent() {
         }
       }
 
-      // Collection filter (from URL query param)
       if (initialCollectionFilter === 'pending' && order.collection_status !== 'pending') {
         return false;
       }
@@ -109,15 +104,10 @@ function OrdersWorkspaceContent() {
     setSelectedIds([]);
   };
 
-  const handleBulkDriverAssign = (driverId: string) => {
-    selectedIds.forEach((id) => assignDriver(id, driverId || null));
-    setSelectedIds([]);
-  };
-
   return (
-    <div className="space-y-6">
+    <div className="space-y-5 sm:space-y-6">
       {/* Workspace Header & Action Counts */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
         <div>
           <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight flex items-center gap-2.5">
             <PackageSearch className="w-6 h-6 text-[#51122F]" />
@@ -132,7 +122,7 @@ function OrdersWorkspaceContent() {
 
         {/* Quick Bulk Action Bar if Items Selected */}
         {selectedIds.length > 0 && (
-          <div className="flex items-center gap-2 p-2 rounded-xl bg-slate-900 text-white text-xs animate-in fade-in duration-150">
+          <div className="flex flex-wrap items-center gap-2 p-2 rounded-xl bg-slate-900 text-white text-xs animate-in fade-in duration-150">
             <span className="font-bold px-2 py-0.5 rounded bg-slate-800 text-amber-300">
               {selectedIds.length} {isRtl ? 'محددة' : 'Selected'}
             </span>
@@ -162,10 +152,10 @@ function OrdersWorkspaceContent() {
       </div>
 
       {/* Filter Bar */}
-      <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-sm space-y-3">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+      <div className="p-3.5 sm:p-4 rounded-2xl bg-white border border-slate-200 shadow-sm space-y-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2.5 sm:gap-3">
           {/* Search Input */}
-          <div className="lg:col-span-2 relative">
+          <div className="sm:col-span-2 relative">
             <Search className="w-4 h-4 absolute left-3.5 rtl:left-auto rtl:right-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
             <input
               type="text"
@@ -227,7 +217,7 @@ function OrdersWorkspaceContent() {
         </div>
 
         {/* Quick Filter Pills Row */}
-        <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-slate-100 text-xs">
+        <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 pt-2 border-t border-slate-100 text-xs">
           <span className="text-slate-400 font-medium text-[11px] flex items-center gap-1">
             <Filter className="w-3 h-3" />
             <span>{isRtl ? 'تصفية سريعة:' : 'Quick Filters:'}</span>
@@ -298,7 +288,7 @@ function OrdersWorkspaceContent() {
       {/* Main Orders Table */}
       <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
         {filteredOrders.length === 0 ? (
-          <div className="p-12 text-center space-y-3">
+          <div className="p-10 sm:p-12 text-center space-y-3">
             <div className="w-12 h-12 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center mx-auto">
               <PackageSearch className="w-6 h-6" />
             </div>
@@ -318,7 +308,7 @@ function OrdersWorkspaceContent() {
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-left rtl:text-right border-collapse text-xs">
+            <table className="w-full text-left rtl:text-right border-collapse text-xs min-w-[700px]">
               <thead>
                 <tr className="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold uppercase tracking-wider text-[11px]">
                   <th className="py-3 px-4 w-10">
@@ -468,7 +458,7 @@ function OrdersWorkspaceContent() {
 
 export default function OrdersPage() {
   return (
-    <Suspense fallback={<div className="p-10 text-center text-slate-400">Loading Orders Workspace...</div>}>
+    <Suspense fallback={<div className="p-8 sm:p-10 text-center text-slate-400">Loading Orders Workspace...</div>}>
       <OrdersWorkspaceContent />
     </Suspense>
   );

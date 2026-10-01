@@ -4,21 +4,12 @@ import React, { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import {
-  Navigation,
   Search,
   CheckCircle2,
-  Clock,
   Truck,
-  MapPin,
-  Building,
-  Phone,
-  Package,
-  Calendar,
-  AlertCircle,
   ShieldCheck,
-  ChevronLeft,
   ChevronRight,
-  ExternalLink
+  AlertCircle
 } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 import { useDispatch } from '@/context/DispatchContext';
@@ -34,7 +25,6 @@ function TrackPageContent() {
 
   const [inputVal, setInputVal] = useState(initialOrderQuery);
   const [activeOrder, setActiveOrder] = useState<Order | null>(null);
-  const [searched, setSearched] = useState(false);
 
   useEffect(() => {
     if (initialOrderQuery) {
@@ -42,12 +32,9 @@ function TrackPageContent() {
       if (found) {
         setActiveOrder(found);
       } else {
-        // Fallback to first order for demo preview if not found
         setActiveOrder(orders[0] || null);
       }
-      setSearched(true);
     } else {
-      // Default to first active in_transit order for instant WOW demo experience
       const demo = orders.find(o => o.status === 'in_transit') || orders[0];
       setActiveOrder(demo || null);
     }
@@ -58,7 +45,6 @@ function TrackPageContent() {
     if (!inputVal.trim()) return;
     const found = getOrderById(inputVal);
     setActiveOrder(found || null);
-    setSearched(true);
   };
 
   const getStepProgress = (status: OrderStatus) => {
@@ -83,29 +69,29 @@ function TrackPageContent() {
       num: 1,
       title_en: 'Order Ingested',
       title_ar: 'تم تسجيل الطلب',
-      sub_en: 'Dispatched by merchant store',
-      sub_ar: 'تم تجهيز الطرد من المتجر'
+      sub_en: 'Dispatched by store',
+      sub_ar: 'تم تجهيز الطرد'
     },
     {
       num: 2,
       title_en: 'Driver Allocated',
       title_ar: 'إسناد المندوب',
-      sub_en: 'Assigned to courier route',
-      sub_ar: 'تم تكليف المندوب بمسار التوصيل'
+      sub_en: 'Assigned to route',
+      sub_ar: 'تم تكليف المندوب'
     },
     {
       num: 3,
       title_en: 'Out for Delivery',
       title_ar: 'الشحنة على الطريق',
-      sub_en: 'Package en route to customer',
-      sub_ar: 'المندوب متوجه لعنوانك الآن'
+      sub_en: 'En route to you',
+      sub_ar: 'المندوب متوجه إليك'
     },
     {
       num: 4,
       title_en: 'Delivered & Signed',
       title_ar: 'تم التسليم بنجاح',
-      sub_en: 'Completed & COD verified',
-      sub_ar: 'تم تسليم الشحنة وتحصيل المبلغ'
+      sub_en: 'Completed & verified',
+      sub_ar: 'تم تسليم الشحنة'
     }
   ];
 
@@ -114,27 +100,21 @@ function TrackPageContent() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-100 via-slate-50 to-white text-slate-900 flex flex-col">
       {/* Consumer Tracking Top Bar */}
-      <header className="bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between">
-        <Link href="/" className="flex items-center gap-3 group">
-          <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#8B2D4C] to-[#51122F] flex items-center justify-center p-1.5 shadow-sm border border-white/20">
-            <img
-              src="/brand/logo-mark.png"
-              alt="Speedoo"
-              className="w-full h-full object-contain filter brightness-110"
-              onError={(e) => { e.currentTarget.style.display = 'none'; }}
-            />
-          </div>
-          <div>
-            <span className="font-bold text-slate-900 text-sm tracking-tight block">Speedoo Express</span>
-            <span className="text-[10px] text-slate-400 font-medium tracking-tight">Qatar Fast Logistics</span>
-          </div>
+      <header className="bg-white border-b border-slate-200 px-4 sm:px-6 py-3.5 flex items-center justify-between">
+        <Link href="/" className="flex items-center gap-2 block max-w-[140px] sm:max-w-[180px]">
+          <img
+            src="/brand/speedoo-logo-maroon.png"
+            alt="Speedoo - On Time, Every Time"
+            className="w-full h-auto object-contain"
+            onError={(e) => { e.currentTarget.src = '/brand/logo-full.png'; }}
+          />
         </Link>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3">
           <LanguageToggle />
           <Link
             href="/"
-            className="text-xs font-semibold text-slate-600 hover:text-[#51122F] flex items-center gap-1.5 py-1 px-3 rounded-lg border border-slate-200 hover:bg-slate-50 transition-colors"
+            className="text-xs font-semibold text-slate-600 hover:text-[#51122F] flex items-center gap-1 py-1.5 px-2.5 sm:px-3 rounded-lg border border-slate-200 hover:bg-slate-50 transition-colors"
           >
             <span>{t('back_to_workspace')}</span>
             <ChevronRight className="w-3.5 h-3.5 rtl:rotate-180" />
@@ -143,12 +123,12 @@ function TrackPageContent() {
       </header>
 
       {/* Hero & Search Header */}
-      <div className="bg-[#1C0B1B] text-white py-12 px-6 border-b border-[#3B123C] text-center space-y-4">
+      <div className="bg-[#1C0B1B] text-white py-8 sm:py-12 px-4 sm:px-6 border-b border-[#3B123C] text-center space-y-3 sm:space-y-4">
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 text-pink-300 text-xs font-semibold border border-white/15">
           <ShieldCheck className="w-3.5 h-3.5 text-pink-400" />
           <span>{isRtl ? 'بوابة التتبع المباشر لعملاء قطر' : 'Official Speedoo Qatar Tracking Portal'}</span>
         </div>
-        <h1 className="text-2xl sm:text-4xl font-black tracking-tight text-white max-w-xl mx-auto">
+        <h1 className="text-xl sm:text-3xl md:text-4xl font-black tracking-tight text-white max-w-xl mx-auto">
           {t('tracking_hero_title')}
         </h1>
         <p className="text-xs sm:text-sm text-slate-300 max-w-lg mx-auto">
@@ -156,21 +136,21 @@ function TrackPageContent() {
         </p>
 
         {/* Search Box */}
-        <div className="max-w-xl mx-auto pt-2">
+        <div className="max-w-xl w-full mx-auto pt-2">
           <form onSubmit={handleSearch} className="flex items-center gap-2 bg-white rounded-2xl p-1.5 shadow-xl">
-            <div className="relative flex-1">
+            <div className="relative flex-1 min-w-0">
               <Search className="w-4 h-4 absolute left-3.5 rtl:left-auto rtl:right-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
               <input
                 type="text"
                 value={inputVal}
                 onChange={(e) => setInputVal(e.target.value)}
                 placeholder={t('tracking_input_placeholder')}
-                className="w-full text-xs sm:text-sm pl-10 pr-3 rtl:pl-3 rtl:pr-10 py-3 bg-transparent text-slate-900 focus:outline-none"
+                className="w-full text-xs sm:text-sm pl-9 sm:pl-10 pr-2.5 sm:pr-3 rtl:pl-2.5 rtl:pr-9 sm:rtl:pr-10 py-2.5 sm:py-3 bg-transparent text-slate-900 focus:outline-none"
               />
             </div>
             <button
               type="submit"
-              className="px-5 py-3 rounded-xl bg-gradient-to-r from-[#51122F] to-[#751B44] hover:from-[#65173B] hover:to-[#8B2D4C] text-white font-bold text-xs sm:text-sm transition-all shadow-md active:scale-95"
+              className="px-4 sm:px-5 py-2.5 sm:py-3 rounded-xl bg-gradient-to-r from-[#51122F] to-[#751B44] hover:from-[#65173B] hover:to-[#8B2D4C] text-white font-bold text-xs sm:text-sm transition-all shadow-md active:scale-95 flex-shrink-0"
             >
               {t('track_btn')}
             </button>
@@ -179,25 +159,25 @@ function TrackPageContent() {
       </div>
 
       {/* Tracking Details Container */}
-      <div className="flex-1 max-w-3xl w-full mx-auto p-6 space-y-6">
+      <div className="flex-1 max-w-3xl w-full mx-auto p-4 sm:p-6 space-y-5 sm:space-y-6">
         {activeOrder ? (
-          <div className="bg-white rounded-3xl border border-slate-200 shadow-xl overflow-hidden space-y-6 p-6 sm:p-8">
+          <div className="bg-white rounded-3xl border border-slate-200 shadow-xl overflow-hidden space-y-5 sm:space-y-6 p-5 sm:p-8">
             {/* Order Identity Strip */}
-            <div className="flex flex-wrap items-center justify-between gap-4 pb-6 border-b border-slate-100">
-              <div className="space-y-1">
-                <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider block">
+            <div className="flex flex-wrap items-center justify-between gap-3 pb-5 border-b border-slate-100">
+              <div className="space-y-1 min-w-0">
+                <span className="text-[10px] sm:text-xs font-semibold text-slate-400 uppercase tracking-wider block">
                   {t('order_id')}
                 </span>
-                <span className="text-xl sm:text-2xl font-black font-mono text-slate-900">
+                <span className="text-lg sm:text-2xl font-black font-mono text-slate-900 block">
                   {activeOrder.order_number}
                 </span>
-                <span className="text-xs text-slate-500 block">
+                <span className="text-xs text-slate-500 block truncate">
                   {isRtl ? 'المرسل: ' : 'From: '} {activeOrder.store_name}
                 </span>
               </div>
 
               <div className="text-right rtl:text-left">
-                <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-1">
+                <span className="text-[10px] sm:text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-1">
                   {t('status')}
                 </span>
                 <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold ${
@@ -208,7 +188,7 @@ function TrackPageContent() {
                     : 'bg-blue-50 text-blue-700 border border-blue-200'
                 }`}>
                   {activeOrder.status === 'in_transit'
-                    ? (isRtl ? '🚚 الطرد في الطريق للتسليم' : '🚚 Out for Delivery Today')
+                    ? (isRtl ? '🚚 في الطريق للتسليم' : '🚚 Out for Delivery Today')
                     : activeOrder.status === 'delivered'
                     ? (isRtl ? '✅ تم التسليم بنجاح' : '✅ Delivered & Verified')
                     : (isRtl ? '📦 تم استلام الشحنة' : '📦 Order Ingested')}
@@ -217,18 +197,18 @@ function TrackPageContent() {
             </div>
 
             {/* Visual Stepper Bar */}
-            <div className="py-4">
+            <div className="py-2 sm:py-4">
               <div className="relative">
                 {/* Connecting Track Line */}
-                <div className="absolute top-5 left-8 right-8 h-1 bg-slate-200 -z-0" />
+                <div className="absolute top-5 left-6 right-6 h-1 bg-slate-200 -z-0" />
                 <div
-                  className="absolute top-5 left-8 h-1 bg-[#51122F] transition-all duration-500 -z-0"
+                  className="absolute top-5 left-6 h-1 bg-[#51122F] transition-all duration-500 -z-0"
                   style={{
-                    width: currentStep === 4 ? 'calc(100% - 4rem)' : currentStep === 3 ? '66%' : currentStep === 2 ? '33%' : '0%'
+                    width: currentStep === 4 ? 'calc(100% - 3rem)' : currentStep === 3 ? '66%' : currentStep === 2 ? '33%' : '0%'
                   }}
                 />
 
-                <div className="grid grid-cols-4 gap-2 relative z-10">
+                <div className="grid grid-cols-4 gap-1 sm:gap-2 relative z-10">
                   {steps.map((step) => {
                     const isPassed = step.num <= currentStep;
                     const isCurrent = step.num === currentStep;
@@ -236,23 +216,23 @@ function TrackPageContent() {
                     return (
                       <div key={step.num} className="flex flex-col items-center text-center">
                         <div
-                          className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-xs transition-all shadow-sm ${
+                          className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center font-bold text-xs transition-all shadow-sm ${
                             isPassed
                               ? 'bg-[#51122F] text-white border-2 border-[#51122F]'
                               : 'bg-white text-slate-400 border-2 border-slate-200'
                           } ${isCurrent ? 'ring-4 ring-pink-100' : ''}`}
                         >
                           {isPassed && step.num < currentStep ? (
-                            <CheckCircle2 className="w-5 h-5 text-white" />
+                            <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
                           ) : (
                             step.num
                           )}
                         </div>
-                        <div className="mt-2.5">
-                          <span className={`text-xs font-bold block ${isPassed ? 'text-slate-900' : 'text-slate-400'}`}>
+                        <div className="mt-2">
+                          <span className={`text-[10px] sm:text-xs font-bold block ${isPassed ? 'text-slate-900' : 'text-slate-400'}`}>
                             {isRtl ? step.title_ar : step.title_en}
                           </span>
-                          <span className="text-[10px] text-slate-500 hidden sm:block mt-0.5">
+                          <span className="text-[9px] sm:text-[10px] text-slate-500 hidden sm:block mt-0.5">
                             {isRtl ? step.sub_ar : step.sub_en}
                           </span>
                         </div>
@@ -264,7 +244,7 @@ function TrackPageContent() {
             </div>
 
             {/* Order Details Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-5 rounded-2xl bg-slate-50 border border-slate-200 text-xs">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 sm:gap-4 p-4 sm:p-5 rounded-2xl bg-slate-50 border border-slate-200 text-xs">
               <div className="space-y-1">
                 <span className="text-slate-400 font-semibold block uppercase tracking-wider text-[10px]">
                   {t('destination')}
@@ -288,17 +268,17 @@ function TrackPageContent() {
                   <span className="text-slate-400 text-[10px] uppercase font-bold block">
                     {t('total_cod_collect')}
                   </span>
-                  <span className="text-lg font-black text-[#51122F]">
+                  <span className="text-base sm:text-lg font-black text-[#51122F]">
                     {formatCurrency(activeOrder.total_amount)}
                   </span>
                 </div>
 
                 {activeOrder.driver_name && (
-                  <div className="flex items-center gap-2.5 bg-white px-3 py-2 rounded-xl border border-slate-200 shadow-sm">
-                    <Truck className="w-4 h-4 text-indigo-600" />
+                  <div className="flex items-center gap-2 bg-white px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-xl border border-slate-200 shadow-sm">
+                    <Truck className="w-4 h-4 text-indigo-600 flex-shrink-0" />
                     <div>
-                      <span className="text-[10px] text-slate-400 block">{t('courier_details')}</span>
-                      <span className="font-bold text-slate-900">{activeOrder.driver_name}</span>
+                      <span className="text-[9px] sm:text-[10px] text-slate-400 block">{t('courier_details')}</span>
+                      <span className="font-bold text-slate-900 text-xs">{activeOrder.driver_name}</span>
                     </div>
                   </div>
                 )}
@@ -306,14 +286,14 @@ function TrackPageContent() {
             </div>
 
             {/* Live Timeline Audit */}
-            <div className="space-y-3 pt-2">
+            <div className="space-y-3 pt-1">
               <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wider">
                 {t('order_timeline')}
               </h3>
 
               <div className="space-y-3 pl-4 rtl:pl-0 rtl:pr-4 border-l-2 rtl:border-l-0 rtl:border-r-2 border-slate-200">
                 {activeOrder.events.map((ev, i) => (
-                  <div key={ev.id || i} className="relative pb-2">
+                  <div key={ev.id || i} className="relative pb-1.5">
                     <div className="absolute -left-[21px] rtl:-left-auto rtl:-right-[21px] top-1 w-2.5 h-2.5 rounded-full bg-[#51122F]" />
                     <div className="text-xs font-bold text-slate-900">
                       {isRtl ? ev.title_ar : ev.title_en}
@@ -330,21 +310,21 @@ function TrackPageContent() {
             </div>
 
             {/* Support Box */}
-            <div className="p-4 rounded-2xl bg-[#51122F]/5 border border-[#51122F]/15 flex items-center justify-between text-xs">
+            <div className="p-3.5 sm:p-4 rounded-2xl bg-[#51122F]/5 border border-[#51122F]/15 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
               <div>
                 <span className="font-bold text-slate-900 block">{t('need_support')}</span>
                 <span className="text-slate-500 text-[11px]">Speedoo Qatar Call Center: +974 4488 2190</span>
               </div>
               <a
                 href="tel:+97444882190"
-                className="px-3.5 py-2 rounded-xl bg-[#51122F] text-white font-bold hover:bg-[#65173B] transition-colors"
+                className="px-3.5 py-2 rounded-xl bg-[#51122F] text-white font-bold text-center hover:bg-[#65173B] transition-colors flex-shrink-0"
               >
                 {t('call_support')}
               </a>
             </div>
           </div>
         ) : (
-          <div className="p-12 text-center bg-white rounded-3xl border border-slate-200 space-y-3">
+          <div className="p-10 sm:p-12 text-center bg-white rounded-3xl border border-slate-200 space-y-3">
             <AlertCircle className="w-10 h-10 text-amber-500 mx-auto" />
             <h3 className="text-base font-bold text-slate-900">
               {isRtl ? 'لم يتم العثور على الشحنة' : 'Consignment Not Found'}
@@ -363,7 +343,7 @@ function TrackPageContent() {
 
 export default function TrackPage() {
   return (
-    <Suspense fallback={<div className="p-10 text-center text-slate-500">Loading Tracking Engine...</div>}>
+    <Suspense fallback={<div className="p-8 sm:p-10 text-center text-slate-500">Loading Tracking Engine...</div>}>
       <TrackPageContent />
     </Suspense>
   );

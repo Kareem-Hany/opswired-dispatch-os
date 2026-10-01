@@ -4,17 +4,8 @@ import React, { use } from 'react';
 import Link from 'next/link';
 import {
   Printer,
-  ArrowLeft,
   ChevronLeft,
-  Building,
-  User,
-  Phone,
-  MapPin,
-  Calendar,
-  CheckCircle,
-  Truck,
-  QrCode,
-  ShieldCheck
+  QrCode
 } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 import { useDispatch } from '@/context/DispatchContext';
@@ -27,7 +18,6 @@ export default function InvoicePage({ params }: { params: Promise<{ id: string }
   const { t, formatCurrency, isRtl } = useLanguage();
   const { getOrderById, orders } = useDispatch();
 
-  // Find by ID, order number, or fallback to first order for demo preview
   const order = getOrderById(id) || orders.find(o => o.id === id) || orders[0];
 
   const handlePrint = () => {
@@ -54,7 +44,7 @@ export default function InvoicePage({ params }: { params: Promise<{ id: string }
     : `https://speedoo.net/track?order=${order.order_number}`;
 
   return (
-    <div className="min-h-screen bg-slate-100 print:bg-white text-slate-900 flex flex-col items-center py-6 sm:py-10 px-4 print:p-0">
+    <div className="min-h-screen bg-slate-100 print:bg-white text-slate-900 flex flex-col items-center py-4 sm:py-8 px-3 sm:px-4 print:p-0">
       {/* Non-Printable Header Bar */}
       <div className="max-w-3xl w-full mb-4 flex items-center justify-between print:hidden">
         <Link
@@ -65,14 +55,14 @@ export default function InvoicePage({ params }: { params: Promise<{ id: string }
           <span>{t('back_to_workspace')}</span>
         </Link>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2.5">
           <LanguageToggle />
           <button
             type="button"
             onClick={handlePrint}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-[#51122F] to-[#751B44] text-white font-bold text-xs shadow-md hover:shadow-lg transition-all active:scale-95"
+            className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 rounded-xl bg-gradient-to-r from-[#51122F] to-[#751B44] text-white font-bold text-xs shadow-md hover:shadow-lg transition-all active:scale-95"
           >
-            <Printer className="w-4 h-4" />
+            <Printer className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             <span>{t('print_action')}</span>
           </button>
         </div>
@@ -80,33 +70,23 @@ export default function InvoicePage({ params }: { params: Promise<{ id: string }
 
       {/* Printable Sheet (Standard A4 / 4x6 Waybill layout) */}
       <div
-        className="max-w-3xl w-full bg-white border border-slate-300 print:border-none shadow-xl print:shadow-none p-8 sm:p-10 space-y-6 text-xs text-slate-900 font-sans"
+        className="max-w-3xl w-full bg-white border border-slate-300 print:border-none shadow-xl print:shadow-none p-5 sm:p-8 md:p-10 space-y-5 sm:space-y-6 text-xs text-slate-900 font-sans rounded-2xl print:rounded-none"
         style={{ minHeight: '297mm' }}
       >
-        {/* Waybill Master Header */}
+        {/* Waybill Master Header with Official Attached Speedoo Logo */}
         <div className="border-b-2 border-slate-900 pb-5 flex flex-wrap items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-xl bg-[#51122F] flex items-center justify-center p-2 text-white">
-              <img
-                src="/brand/logo-mark.png"
-                alt="Speedoo Logo"
-                className="w-full h-full object-contain filter brightness-110"
-                onError={(e) => { e.currentTarget.style.display = 'none'; }}
-              />
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="text-xl font-black tracking-tight text-slate-950 uppercase">
-                  SPEEDOO LOGISTICS
-                </span>
-                <span className="text-[10px] px-2 py-0.5 rounded bg-slate-900 text-white font-mono font-bold">
-                  QATAR
-                </span>
-              </div>
-              <span className="text-[11px] text-slate-500 block font-medium">
-                Speedoo Express Delivery & Operations OS (Doha, State of Qatar)
-              </span>
-            </div>
+          <div className="space-y-1">
+            <img
+              src="/brand/speedoo-logo-dark.png"
+              alt="Speedoo - On Time, Every Time"
+              className="h-10 sm:h-12 w-auto object-contain"
+              onError={(e) => {
+                e.currentTarget.src = '/brand/logo-full.png';
+              }}
+            />
+            <span className="text-[11px] text-slate-500 block font-medium">
+              Speedoo Express Delivery & Operations OS (Doha, State of Qatar)
+            </span>
           </div>
 
           {/* Barcode & Waybill # */}
@@ -114,11 +94,11 @@ export default function InvoicePage({ params }: { params: Promise<{ id: string }
             <div className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider">
               {isRtl ? 'رقم بوليصة الشحن الرسمية' : 'Consignment Waybill #'}
             </div>
-            <div className="font-mono text-lg font-black text-slate-950 tracking-wider">
+            <div className="font-mono text-base sm:text-lg font-black text-slate-950 tracking-wider">
               {order.order_number}
             </div>
             {/* Simulated 1D Barcode Graphic */}
-            <div className="flex justify-end rtl:justify-start gap-[2px] h-7 pt-1">
+            <div className="flex justify-end rtl:justify-start gap-[2px] h-6 sm:h-7 pt-1">
               {[3,1,2,4,1,3,2,1,4,2,3,1,2,4,1,2,3,1,4,2,1,3,2,4,1,3,1,2,4,2].map((w, idx) => (
                 <div
                   key={idx}
@@ -131,10 +111,10 @@ export default function InvoicePage({ params }: { params: Promise<{ id: string }
         </div>
 
         {/* Consignor (Sender) & Consignee (Recipient) Split Boxes */}
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 sm:gap-4">
           {/* Sender / Merchant */}
-          <div className="p-4 rounded-xl border border-slate-300 bg-slate-50/60 space-y-2">
-            <div className="text-[10px] font-black uppercase tracking-wider text-slate-500 border-b border-slate-200 pb-1.5 flex items-center justify-between">
+          <div className="p-3.5 sm:p-4 rounded-xl border border-slate-300 bg-slate-50/60 space-y-1.5">
+            <div className="text-[10px] font-black uppercase tracking-wider text-slate-500 border-b border-slate-200 pb-1 flex items-center justify-between">
               <span>{t('consignor')}</span>
               <span className="text-slate-400 font-mono">FROM</span>
             </div>
@@ -146,8 +126,8 @@ export default function InvoicePage({ params }: { params: Promise<{ id: string }
           </div>
 
           {/* Recipient */}
-          <div className="p-4 rounded-xl border-2 border-slate-900 bg-white space-y-2">
-            <div className="text-[10px] font-black uppercase tracking-wider text-slate-900 border-b border-slate-200 pb-1.5 flex items-center justify-between">
+          <div className="p-3.5 sm:p-4 rounded-xl border-2 border-slate-900 bg-white space-y-1.5">
+            <div className="text-[10px] font-black uppercase tracking-wider text-slate-900 border-b border-slate-200 pb-1 flex items-center justify-between">
               <span>{t('consignee')}</span>
               <span className="text-pink-800 font-bold font-mono">TO / RECIPIENT</span>
             </div>
@@ -165,7 +145,7 @@ export default function InvoicePage({ params }: { params: Promise<{ id: string }
         </div>
 
         {/* Dispatch Metadata Strip */}
-        <div className="grid grid-cols-4 gap-2 p-3 rounded-xl bg-slate-100 border border-slate-200 text-center font-mono">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 p-2.5 sm:p-3 rounded-xl bg-slate-100 border border-slate-200 text-center font-mono">
           <div>
             <span className="text-[10px] text-slate-400 block uppercase">Issue Date</span>
             <span className="font-bold text-slate-900 text-[11px]">
@@ -248,15 +228,15 @@ export default function InvoicePage({ params }: { params: Promise<{ id: string }
             </span>
           </div>
           <div className="text-right rtl:text-left">
-            <span className="text-2xl sm:text-3xl font-black font-mono text-white">
+            <span className="text-xl sm:text-3xl font-black font-mono text-white">
               {formatCurrency(order.total_amount)}
             </span>
           </div>
         </div>
 
         {/* QR Code & Digital Verification */}
-        <div className="p-4 rounded-xl border border-slate-200 flex items-center justify-between gap-4">
-          <div className="space-y-1">
+        <div className="p-3.5 sm:p-4 rounded-xl border border-slate-200 flex items-center justify-between gap-3 sm:gap-4">
+          <div className="space-y-1 min-w-0">
             <span className="font-bold text-slate-950 text-xs block">
               {isRtl ? 'التحقق الرقمي الفوري وبوابة التتبع' : 'Scan to Verify Digital POD & Status'}
             </span>
@@ -265,51 +245,50 @@ export default function InvoicePage({ params }: { params: Promise<{ id: string }
                 ? 'امسح رمز الاستجابة السريعة (QR) بكاميرا الهاتف للتحقق المباشر من مسار الشحنة والإيصال الإلكتروني.'
                 : 'Scan with smartphone camera to open live tracking timeline and verify driver credentials.'}
             </span>
-            <span className="text-[10px] text-slate-400 font-mono block">
+            <span className="text-[10px] text-slate-400 font-mono block truncate">
               {trackingUrl}
             </span>
           </div>
 
-          {/* SVG QR Code Simulation */}
-          <div className="w-20 h-20 p-1.5 bg-white border-2 border-slate-900 rounded-lg flex items-center justify-center flex-shrink-0">
+          <div className="w-16 h-16 sm:w-20 sm:h-20 p-1.5 bg-white border-2 border-slate-900 rounded-lg flex items-center justify-center flex-shrink-0">
             <QrCode className="w-full h-full text-slate-950" />
           </div>
         </div>
 
         {/* Signatures & Acceptance Box */}
-        <div className="grid grid-cols-2 gap-8 pt-4">
-          <div className="space-y-6">
-            <div className="h-14 border-b border-dashed border-slate-400" />
+        <div className="grid grid-cols-2 gap-6 sm:gap-8 pt-2 sm:pt-4">
+          <div className="space-y-4 sm:space-y-6">
+            <div className="h-10 sm:h-14 border-b border-dashed border-slate-400" />
             <div className="text-center">
               <span className="text-xs font-bold text-slate-900 block">{t('signature_driver')}</span>
-              <span className="text-[10px] text-slate-400">Speedoo Certified Courier Representative</span>
+              <span className="text-[10px] text-slate-400">Speedoo Certified Courier</span>
             </div>
           </div>
 
-          <div className="space-y-6">
-            <div className="h-14 border-b border-dashed border-slate-400" />
+          <div className="space-y-4 sm:space-y-6">
+            <div className="h-10 sm:h-14 border-b border-dashed border-slate-400" />
             <div className="text-center">
               <span className="text-xs font-bold text-slate-900 block">{t('signature_recipient')}</span>
-              <span className="text-[10px] text-slate-400">Full Signature & Contact Confirmation</span>
+              <span className="text-[10px] text-slate-400">Full Signature Confirmation</span>
             </div>
           </div>
         </div>
 
         {/* Perforated Merchant Settlement Tear-Off Slip */}
-        <div className="pt-6 border-t-2 border-dashed border-slate-400 space-y-3">
+        <div className="pt-4 sm:pt-6 border-t-2 border-dashed border-slate-400 space-y-2.5 sm:space-y-3">
           <div className="flex items-center justify-between text-[11px] font-bold text-slate-500">
             <span>{t('perforated_notice')}</span>
             <span className="font-mono text-slate-900">{order.order_number}</span>
           </div>
 
-          <div className="grid grid-cols-4 gap-2 text-[10px] bg-slate-50 p-3 rounded-lg border border-slate-200">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-[10px] bg-slate-50 p-2.5 sm:p-3 rounded-lg border border-slate-200">
             <div>
               <span className="text-slate-400 block">Merchant:</span>
-              <span className="font-bold text-slate-900">{order.store_name}</span>
+              <span className="font-bold text-slate-900 truncate block">{order.store_name}</span>
             </div>
             <div>
               <span className="text-slate-400 block">Recipient:</span>
-              <span className="font-bold text-slate-900">{order.customer_name}</span>
+              <span className="font-bold text-slate-900 truncate block">{order.customer_name}</span>
             </div>
             <div>
               <span className="text-slate-400 block">Net Goods COD:</span>
