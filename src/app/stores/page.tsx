@@ -4,22 +4,18 @@ import React from 'react';
 import Link from 'next/link';
 import {
   Store as StoreIcon,
-  Phone,
-  User,
   MapPin,
-  Building,
-  CreditCard,
-  Package,
-  ChevronRight,
-  TrendingUp,
-  ShieldCheck
+  ChevronRight
 } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 import { useDispatch } from '@/context/DispatchContext';
+import { useBrand } from '@/context/BrandContext';
 
 export default function StoresPage() {
   const { t, formatCurrency, isRtl } = useLanguage();
   const { stores, orders } = useDispatch();
+  const brand = useBrand();
+  const { city, curr, createHref } = brand;
 
   return (
     <div className="space-y-6">
@@ -32,8 +28,8 @@ export default function StoresPage() {
           </h1>
           <p className="text-xs text-slate-500 mt-1">
             {isRtl
-              ? 'سجل المتاجر والشركاء التجاريين المرتبطين بأنظمة الشحن السريع في قطر'
-              : 'Merchant accounts, contracted courier tariffs, active shipments, and settlement balances'}
+              ? `سجل المتاجر والشركاء التجاريين المرتبطين بأنظمة الشحن السريع في ${city}`
+              : `Merchant accounts, contracted courier tariffs, active shipments, and settlement balances in ${city}`}
           </p>
         </div>
 
@@ -48,7 +44,6 @@ export default function StoresPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         {stores.map((store) => {
           const storeOrders = orders.filter((o) => o.store_id === store.id);
-          const totalStoreVolume = storeOrders.reduce((acc, o) => acc + o.total_amount, 0);
 
           return (
             <div
@@ -89,7 +84,7 @@ export default function StoresPage() {
                 <div>
                   <span className="text-[10px] text-slate-400 block uppercase font-semibold">Contract Fee</span>
                   <span className="font-bold text-slate-900 block mt-0.5 font-mono">
-                    {store.default_delivery_fee} QAR
+                    {store.default_delivery_fee} {curr}
                   </span>
                 </div>
                 <div>
@@ -108,25 +103,21 @@ export default function StoresPage() {
 
               {/* Address Strip */}
               <div className="text-xs text-slate-600 bg-slate-50/60 p-2.5 rounded-xl border border-slate-100 flex items-center gap-2">
-                <Building className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
+                <MapPin className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
                 <span className="truncate">{store.address}</span>
               </div>
 
-              {/* Actions Footer */}
-              <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-xs">
-                <a
-                  href={`tel:${store.phone.replace(/[^0-9]/g, '')}`}
-                  className="flex items-center gap-1.5 font-semibold text-slate-700 hover:text-slate-900"
-                >
-                  <Phone className="w-3.5 h-3.5 text-slate-500" />
-                  <span>{store.phone}</span>
-                </a>
+              {/* Action Link */}
+              <div className="pt-2 border-t border-slate-100 flex items-center justify-between">
+                <span className="text-xs text-slate-500 font-mono">
+                  {store.phone}
+                </span>
 
                 <Link
-                  href={`/orders?status=all`}
-                  className="flex items-center gap-1 font-bold text-[#51122F] hover:underline"
+                  href={createHref('/orders')}
+                  className="flex items-center gap-1 text-xs font-bold text-[#51122F] hover:underline"
                 >
-                  <span>{isRtl ? 'عرض شحنات المتجر' : 'Filter Store Shipments'}</span>
+                  <span>{isRtl ? 'عرض شحنات المتجر' : 'View Store Consignments'}</span>
                   <ChevronRight className="w-3.5 h-3.5 rtl:rotate-180" />
                 </Link>
               </div>

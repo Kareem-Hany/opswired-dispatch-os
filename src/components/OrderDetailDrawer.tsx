@@ -24,6 +24,7 @@ import { Order, OrderStatus, CollectionStatus } from '@/lib/types';
 import { OrderStatusBadge } from '@/components/OrderStatusBadge';
 import { useLanguage } from '@/context/LanguageContext';
 import { useDispatch } from '@/context/DispatchContext';
+import { useBrand } from '@/context/BrandContext';
 
 interface OrderDetailDrawerProps {
   order: Order | null;
@@ -33,13 +34,15 @@ interface OrderDetailDrawerProps {
 export function OrderDetailDrawer({ order, onClose }: OrderDetailDrawerProps) {
   const { t, formatCurrency, isRtl } = useLanguage();
   const { drivers, updateOrderStatus, assignDriver, updateCollectionStatus } = useDispatch();
+  const { createHref, queryString } = useBrand();
   const [copied, setCopied] = useState(false);
 
   if (!order) return null;
 
+  const trackingPath = `/track?order=${order.order_number}`;
   const trackingUrl = typeof window !== 'undefined'
-    ? `${window.location.origin}/track?order=${order.order_number}`
-    : `/track?order=${order.order_number}`;
+    ? `${window.location.origin}${createHref(trackingPath)}`
+    : createHref(trackingPath);
 
   const handleCopyLink = () => {
     if (navigator.clipboard) {
@@ -103,7 +106,7 @@ export function OrderDetailDrawer({ order, onClose }: OrderDetailDrawerProps) {
               <span>WhatsApp</span>
             </a>
             <Link
-              href={`/invoice/${order.id}`}
+              href={createHref(`/invoice/${order.id}`)}
               target="_blank"
               className="flex flex-col items-center justify-center p-2.5 rounded-xl bg-slate-100 border border-slate-200 text-slate-700 hover:bg-slate-200 transition-all text-xs font-semibold gap-1.5"
             >
@@ -111,7 +114,7 @@ export function OrderDetailDrawer({ order, onClose }: OrderDetailDrawerProps) {
               <span>{t('print_invoice')}</span>
             </Link>
             <Link
-              href={`/track?order=${order.order_number}`}
+              href={createHref(`/track?order=${order.order_number}`)}
               target="_blank"
               className="flex flex-col items-center justify-center p-2.5 rounded-xl bg-blue-50 border border-blue-200 text-blue-700 hover:bg-blue-100 transition-all text-xs font-semibold gap-1.5"
             >

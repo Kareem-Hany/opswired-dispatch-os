@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { Language, translations } from '@/lib/translations';
+import { useBrand } from '@/context/BrandContext';
 
 interface LanguageContextType {
   language: Language;
@@ -11,12 +12,15 @@ interface LanguageContextType {
   toggleLanguage: () => void;
   t: (key: keyof typeof translations.en) => string;
   formatCurrency: (amount: number) => string;
+  curr: string;
+  currencySymbolAr: string;
 }
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
   const [language, setLanguageState] = useState<Language>('en');
+  const { curr, currencySymbolAr } = useBrand();
 
   useEffect(() => {
     // Check localStorage or default to English
@@ -54,12 +58,12 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   };
 
   const formatCurrency = (amount: number): string => {
-    const formatted = new Intl.NumberFormat(language === 'ar' ? 'ar-QA' : 'en-US', {
+    const formatted = new Intl.NumberFormat(language === 'ar' ? 'ar-EG' : 'en-US', {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2
     }).format(amount);
 
-    return language === 'ar' ? `${formatted} ر.ق` : `QAR ${formatted}`;
+    return language === 'ar' ? `${formatted} ${currencySymbolAr}` : `${curr} ${formatted}`;
   };
 
   return (
@@ -71,7 +75,9 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
         setLanguage,
         toggleLanguage,
         t,
-        formatCurrency
+        formatCurrency,
+        curr,
+        currencySymbolAr
       }}
     >
       {children}

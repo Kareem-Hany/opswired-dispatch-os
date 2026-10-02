@@ -7,20 +7,17 @@ import {
   Phone,
   Star,
   MapPin,
-  ShieldCheck,
-  CheckCircle2,
-  Package,
-  Wallet,
-  Car,
-  ChevronRight,
-  ExternalLink
+  ChevronRight
 } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 import { useDispatch } from '@/context/DispatchContext';
+import { useBrand } from '@/context/BrandContext';
 
 export default function DriversPage() {
   const { t, formatCurrency, isRtl } = useLanguage();
   const { drivers, orders } = useDispatch();
+  const brand = useBrand();
+  const { client, city, createHref } = brand;
 
   return (
     <div className="space-y-6">
@@ -33,15 +30,15 @@ export default function DriversPage() {
           </h1>
           <p className="text-xs text-slate-500 mt-1">
             {isRtl
-              ? 'إدارة مناديب أسطول سبيدو في قطر، تتبع العهد النقدية، وتوزيع مسارات التوصيل'
-              : 'Fleet operations roster, vehicle allocations, active drop routes, and on-road cash floats'}
+              ? `إدارة مناديب أسطول ${client} في ${city}، تتبع العهد النقدية، وتوزيع مسارات التوصيل`
+              : `Fleet operations roster, vehicle allocations, active drop routes, and on-road cash floats in ${city}`}
           </p>
         </div>
 
         <div className="flex items-center gap-2 text-xs">
           <span className="px-3 py-1.5 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-200 font-bold flex items-center gap-1.5">
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            <span>4 {isRtl ? 'مناديب نشطين بالميدان' : 'Couriers On Shift'}</span>
+            <span>{drivers.length} {isRtl ? 'مناديب نشطين بالميدان' : 'Couriers On Shift'}</span>
           </span>
         </div>
       </div>
@@ -151,7 +148,7 @@ export default function DriversPage() {
                 </a>
 
                 <Link
-                  href={`/orders?status=all`}
+                  href={createHref('/orders')}
                   className="flex items-center gap-1 text-xs font-bold text-[#51122F] hover:underline"
                 >
                   <span>{isRtl ? 'عرض شحنات المندوب' : 'View Driver Route'}</span>

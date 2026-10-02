@@ -7,16 +7,17 @@ import {
   HandCoins,
   Banknote,
   TrendingUp,
-  ArrowUpRight,
-  ShieldCheck,
-  Building2
+  ArrowUpRight
 } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 import { useDispatch } from '@/context/DispatchContext';
+import { useBrand } from '@/context/BrandContext';
 
 export function FinancialLedgerCards() {
   const { t, formatCurrency, isRtl } = useLanguage();
   const { metrics } = useDispatch();
+  const brand = useBrand();
+  const { bankNameEn, bankNameAr, createHref } = brand;
 
   const financialCards = [
     {
@@ -24,7 +25,7 @@ export function FinancialLedgerCards() {
       title: t('treasury_balance'),
       amount: metrics.treasuryBalance,
       icon: Vault,
-      tag: isRtl ? 'حسابات QNB والخزائن' : 'QNB & Vault Reserve',
+      tag: isRtl ? bankNameAr : bankNameEn,
       tagColor: 'bg-emerald-50 text-emerald-700 border-emerald-200',
       bg: 'bg-white',
       accent: 'text-slate-900',
@@ -76,7 +77,7 @@ export function FinancialLedgerCards() {
         return (
           <Link
             key={card.id}
-            href={card.href}
+            href={createHref(card.href)}
             className={`group p-5 rounded-2xl border border-slate-200 ${card.bg} shadow-sm hover:shadow-md hover:border-slate-300 transition-all duration-200 flex flex-col justify-between`}
           >
             <div>
@@ -84,7 +85,7 @@ export function FinancialLedgerCards() {
                 <span className="p-2.5 rounded-xl bg-slate-50 border border-slate-100 text-slate-700 group-hover:scale-105 transition-transform">
                   <Icon className="w-5 h-5" />
                 </span>
-                <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full border ${card.tagColor}`}>
+                <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full border truncate max-w-[140px] ${card.tagColor}`}>
                   {card.tag}
                 </span>
               </div>

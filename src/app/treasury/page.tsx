@@ -18,10 +18,13 @@ import {
 } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 import { useDispatch } from '@/context/DispatchContext';
+import { useBrand } from '@/context/BrandContext';
 
 export default function TreasuryPage() {
   const { t, formatCurrency, isRtl } = useLanguage();
   const { wallets, transactions, metrics } = useDispatch();
+  const brand = useBrand();
+  const { bankNameEn, bankNameAr } = brand;
   const [activeTab, setActiveTab] = useState<'all' | 'in' | 'out'>('all');
 
   const filteredTxns = transactions.filter((txn) => {
@@ -41,8 +44,8 @@ export default function TreasuryPage() {
           </h1>
           <p className="text-xs text-slate-500 mt-1">
             {isRtl
-              ? 'إدارة الخزائن النقدية، حسابات بنك قطر الوطني (QNB)، وتسوية مبالغ الدفع عند الاستلام (COD)'
-              : 'Corporate cash vaults, QNB corporate banking integration, and merchant COD payout reconciliation'}
+              ? `إدارة الخزائن النقدية، ${bankNameAr}، وتسوية مبالغ الدفع عند الاستلام (COD)`
+              : `Corporate cash vaults, ${bankNameEn} integration, and merchant COD payout reconciliation`}
           </p>
         </div>
 

@@ -8,9 +8,9 @@ import {
   PackageSearch,
   Truck,
   WalletCards,
-  Navigation,
-  Plus
+  Navigation
 } from 'lucide-react';
+import { BrandProvider, useBrand } from '@/context/BrandContext';
 import { LanguageProvider, useLanguage } from '@/context/LanguageContext';
 import { DispatchProvider, useDispatch } from '@/context/DispatchContext';
 import { Sidebar } from '@/components/Sidebar';
@@ -22,6 +22,7 @@ function AppShellContent({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const { isRtl, t } = useLanguage();
   const { metrics } = useDispatch();
+  const { createHref } = useBrand();
   const [isNewOrderOpen, setIsNewOrderOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -86,7 +87,7 @@ function AppShellContent({ children }: { children: React.ReactNode }) {
           <main className="flex-1 p-3 sm:p-5 md:p-6 pb-24 lg:pb-6 max-w-7xl w-full mx-auto space-y-5 sm:space-y-6">
             {children}
           </main>
-          <DemoWatermark />
+          {/* Note: Demowatermark is permanently relocated inside Sidebar footer per Bug 1 requirements */}
           <NewOrderModal
             isOpen={isNewOrderOpen}
             onClose={() => setIsNewOrderOpen(false)}
@@ -103,7 +104,7 @@ function AppShellContent({ children }: { children: React.ReactNode }) {
           return (
             <Link
               key={item.href}
-              href={item.href}
+              href={createHref(item.href)}
               className={`flex flex-col items-center justify-center flex-1 py-1 text-[10px] font-semibold transition-all relative ${
                 isActive ? 'text-[#51122F]' : 'text-slate-500 hover:text-slate-900'
               }`}
@@ -130,10 +131,12 @@ function AppShellContent({ children }: { children: React.ReactNode }) {
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   return (
-    <LanguageProvider>
-      <DispatchProvider>
-        <AppShellContent>{children}</AppShellContent>
-      </DispatchProvider>
-    </LanguageProvider>
+    <BrandProvider>
+      <LanguageProvider>
+        <DispatchProvider>
+          <AppShellContent>{children}</AppShellContent>
+        </DispatchProvider>
+      </LanguageProvider>
+    </BrandProvider>
   );
 }

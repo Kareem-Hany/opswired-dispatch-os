@@ -28,6 +28,7 @@ import { useDispatch } from '@/context/DispatchContext';
 import { OrderStatusBadge } from '@/components/OrderStatusBadge';
 import { OrderDetailDrawer } from '@/components/OrderDetailDrawer';
 import { Order, OrderStatus } from '@/lib/types';
+import { useBrand } from '@/context/BrandContext';
 
 function OrdersWorkspaceContent() {
   const searchParams = useSearchParams();
@@ -36,6 +37,7 @@ function OrdersWorkspaceContent() {
 
   const { t, formatCurrency, isRtl } = useLanguage();
   const { orders, drivers, stores, updateOrderStatus, assignDriver } = useDispatch();
+  const { createHref } = useBrand();
 
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>(initialStatusFilter);
@@ -421,7 +423,7 @@ function OrdersWorkspaceContent() {
                             <MessageSquare className="w-4 h-4" />
                           </a>
                           <Link
-                            href={`/invoice/${order.id}`}
+                            href={createHref(`/invoice/${order.id}`)}
                             target="_blank"
                             className="p-1.5 rounded-lg text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition-colors"
                             title={t('print_invoice')}
@@ -429,7 +431,7 @@ function OrdersWorkspaceContent() {
                             <Printer className="w-4 h-4" />
                           </Link>
                           <Link
-                            href={`/track?order=${order.order_number}`}
+                            href={createHref(`/track?order=${order.order_number}`)}
                             target="_blank"
                             className="p-1.5 rounded-lg text-blue-600 hover:bg-blue-50 transition-colors"
                             title={t('open_tracking')}

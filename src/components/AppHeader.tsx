@@ -9,6 +9,7 @@ import {
   Menu
 } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
+import { useBrand } from '@/context/BrandContext';
 import { LanguageToggle } from '@/components/LanguageToggle';
 
 interface AppHeaderProps {
@@ -19,6 +20,8 @@ interface AppHeaderProps {
 export function AppHeader({ onOpenNewOrder, onToggleMobileMenu }: AppHeaderProps) {
   const pathname = usePathname();
   const { t, isRtl } = useLanguage();
+  const brand = useBrand();
+  const { client, city } = brand;
   const [isSyncing, setIsSyncing] = useState(false);
   const [syncedRecently, setSyncedRecently] = useState(false);
 
@@ -50,16 +53,18 @@ export function AppHeader({ onOpenNewOrder, onToggleMobileMenu }: AppHeaderProps
 
   return (
     <header className="bg-white border-b border-slate-200 sticky top-0 z-30 print:hidden">
-      {/* Top Operational Status Strip */}
+      {/* Top Operational Status Strip (Requirement 5) */}
       <div className="bg-[#1A0B1A] text-pink-200 text-xs py-1.5 px-3 sm:px-6 flex items-center justify-between border-b border-[#3B153C]">
         <div className="flex items-center gap-2 overflow-hidden">
           <span className="flex-shrink-0 flex h-2 w-2 rounded-full bg-pink-400 animate-pulse" />
           <span className="font-semibold text-white tracking-wide text-[10px] sm:text-[11px] truncate">
-            {t('sandbox_banner')}
+            {isRtl
+              ? `✦ معاينة معمارية خاصة — مخصصة لـ ${client} (عمليات أسطول ${city}). البيئة التفاعلية الحية مفعلة.`
+              : `✦ PRIVATE ARCHITECTURE PREVIEW — Configured for ${client} (${city} Fleet Operations). Live state enabled.`}
           </span>
         </div>
         <div className="hidden md:flex items-center gap-2.5 text-[11px] text-pink-300/80 flex-shrink-0">
-          <span>Speedoo Express Qatar</span>
+          <span>{client} • {city} Hub</span>
           <span className="text-pink-400/40">•</span>
           <span className="font-mono text-pink-200">v3.4-PRO</span>
         </div>
@@ -84,9 +89,9 @@ export function AppHeader({ onOpenNewOrder, onToggleMobileMenu }: AppHeaderProps
               {getBreadcrumb()}
             </div>
             <div className="text-sm sm:text-base md:text-lg font-bold text-slate-900 tracking-tight flex items-center gap-2 truncate">
-              <span className="truncate">{t('system_title')}</span>
-              <span className="text-xs font-normal text-slate-500 hidden xl:inline">
-                ({t('system_sub')})
+              <span className="truncate">{client} Fleet Command</span>
+              <span className="text-xs font-normal text-slate-500 hidden xl:inline truncate">
+                ({isRtl ? `نظام إدارة وتوزيع الأسطول — مركز ${city}` : `Enterprise Logistics Engine — ${city} Hub`})
               </span>
             </div>
           </div>

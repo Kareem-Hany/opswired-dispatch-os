@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 import { useDispatch } from '@/context/DispatchContext';
+import { useBrand } from '@/context/BrandContext';
 import { DashboardMetrics } from '@/components/DashboardMetrics';
 import { FinancialLedgerCards } from '@/components/FinancialLedgerCards';
 import { OrderStatusBadge } from '@/components/OrderStatusBadge';
@@ -23,6 +24,8 @@ import { Order } from '@/lib/types';
 export default function OperationsDashboard() {
   const { t, formatCurrency, isRtl } = useLanguage();
   const { orders, drivers } = useDispatch();
+  const brand = useBrand();
+  const { city, client, createHref } = brand;
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
 
   const recentOrders = orders.slice(0, 6);
@@ -34,28 +37,30 @@ export default function OperationsDashboard() {
         <div className="space-y-1.5 min-w-0">
           <div className="flex items-center gap-2 text-pink-300 text-[11px] sm:text-xs font-semibold uppercase tracking-wider">
             <span className="flex h-2 w-2 rounded-full bg-emerald-400 animate-pulse flex-shrink-0" />
-            <span className="truncate">{isRtl ? 'غرفة العمليات المركزية — الدوحة، قطر' : 'Central Dispatch Operations — Doha, Qatar'}</span>
+            <span className="truncate">
+              {isRtl ? `غرفة العمليات المركزية — مركز ${city}` : `Central Dispatch Operations — ${city} Hub`}
+            </span>
           </div>
           <h1 className="text-lg sm:text-2xl font-black tracking-tight text-white leading-tight">
             {isRtl ? 'محرك التوزيع وإدارة أسطول الشحنات' : 'Logistics Dispatch & Payout Engine'}
           </h1>
           <p className="text-xs sm:text-sm text-slate-300 max-w-2xl leading-relaxed">
             {isRtl
-              ? 'مراقبة حية وتوزيع فوري للطرود، تحصيل نقدي لحظي (COD)، وإسناد تلقائي لمناديب التوصيل عبر كافة مناطق الدوحة ولوسيل.'
-              : 'Real-time consignment flow, automated driver dispatching, live COD field collection, and instant bilingual waybill generation.'}
+              ? `مراقبة حية وتوزيع فوري للطرود، تحصيل نقدي لحظي (COD)، وإسناد تلقائي لمناديب التوصيل عبر كافة مناطق ${city}.`
+              : `Real-time consignment flow, automated driver dispatching, live COD field collection, and instant bilingual waybill generation across ${city}.`}
           </p>
         </div>
 
         <div className="flex items-center gap-2.5 flex-shrink-0 pt-2 md:pt-0">
           <Link
-            href="/orders"
+            href={createHref('/orders')}
             className="flex items-center gap-1.5 sm:gap-2 px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl bg-white text-slate-950 font-bold text-xs hover:bg-slate-100 transition-all shadow-md active:scale-95"
           >
             <span>{t('nav_orders')}</span>
             <ArrowRight className="w-3.5 h-3.5 rtl:rotate-180" />
           </Link>
           <Link
-            href="/track"
+            href={createHref('/track')}
             className="flex items-center gap-1.5 sm:gap-2 px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl bg-white/10 hover:bg-white/15 text-white border border-white/20 font-medium text-xs transition-all active:scale-95"
           >
             <span>{t('nav_tracking')}</span>
@@ -84,7 +89,7 @@ export default function OperationsDashboard() {
             {isRtl ? 'حركة الخزينة والتحصيلات النقدية (COD)' : 'Financial Treasury & COD Settlements'}
           </h2>
           <Link
-            href="/treasury"
+            href={createHref('/treasury')}
             className="text-xs font-semibold text-[#51122F] hover:text-[#751B44] flex items-center gap-1"
           >
             <span>{isRtl ? 'عرض سجل الخزينة الكامل' : 'Open Full Ledger'}</span>
@@ -104,7 +109,7 @@ export default function OperationsDashboard() {
               <span>{isRtl ? 'أحدث الشحنات في غرفة العمليات' : 'Recent Dispatched Shipments'}</span>
             </h2>
             <Link
-              href="/orders"
+              href={createHref('/orders')}
               className="text-xs font-semibold text-[#51122F] hover:underline flex items-center gap-1"
             >
               <span>{isRtl ? 'عرض كافة الشحنات' : 'View All'}</span>
@@ -183,7 +188,7 @@ export default function OperationsDashboard() {
                             <ArrowUpRight className="w-4 h-4" />
                           </button>
                           <Link
-                            href={`/invoice/${order.id}`}
+                            href={createHref(`/invoice/${order.id}`)}
                             target="_blank"
                             className="p-1.5 rounded-lg text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition-colors"
                             title={t('print_invoice')}
@@ -200,7 +205,7 @@ export default function OperationsDashboard() {
           </div>
         </section>
 
-        {/* Active Fleet Drivers Summary Card (1 Col) */}
+        {/* Active Fleet Drivers Summary Card (1 Col) - Completely free of overlapping floating watermark */}
         <section className="space-y-3">
           <div className="flex items-center justify-between">
             <h2 className="text-sm font-bold text-slate-900 flex items-center gap-2">
@@ -208,7 +213,7 @@ export default function OperationsDashboard() {
               <span>{isRtl ? 'حالة أسطول المناديب الميداني' : 'On-Road Fleet Status'}</span>
             </h2>
             <Link
-              href="/drivers"
+              href={createHref('/drivers')}
               className="text-xs font-semibold text-[#51122F] hover:underline"
             >
               {isRtl ? 'إدارة الأسطول' : 'All Drivers'}
@@ -239,31 +244,28 @@ export default function OperationsDashboard() {
                 </div>
 
                 <div className="text-right rtl:text-left flex-shrink-0">
-                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                    drv.status === 'on_route'
-                      ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                      : 'bg-slate-100 text-slate-600'
-                  }`}>
+                  <span
+                    className={`inline-block text-[10px] font-bold px-2 py-0.5 rounded-full border ${
+                      drv.status === 'on_route'
+                        ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                        : 'bg-blue-50 text-blue-700 border-blue-200'
+                    }`}
+                  >
                     {drv.status === 'on_route'
-                      ? (isRtl ? `${drv.active_deliveries} مسار` : `${drv.active_deliveries} Drops`)
+                      ? (isRtl ? 'بالطريق' : 'On Route')
                       : (isRtl ? 'متاح' : 'Available')}
                   </span>
-                  <div className="text-[10px] text-slate-400 mt-1 font-mono">
-                    Float: {formatCurrency(drv.cash_float)}
+                  <div className="text-[10px] text-slate-500 font-mono mt-0.5">
+                    {formatCurrency(drv.cash_float)}
                   </div>
                 </div>
               </div>
             ))}
-
-            <div className="pt-2 border-t border-slate-100 text-[11px] text-slate-500 flex items-center justify-between">
-              <span>{isRtl ? 'إجمالي مناديب الدوحة النشطين' : 'Active Doha Couriers'}</span>
-              <span className="font-bold text-slate-800">4 / 4 Units</span>
-            </div>
           </div>
         </section>
       </div>
 
-      {/* Slide-over Drawer for Order Detail */}
+      {/* Order Detail Drawer */}
       <OrderDetailDrawer
         order={selectedOrder}
         onClose={() => setSelectedOrder(null)}

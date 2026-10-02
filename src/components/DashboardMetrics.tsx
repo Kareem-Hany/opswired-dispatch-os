@@ -13,10 +13,12 @@ import {
 } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 import { useDispatch } from '@/context/DispatchContext';
+import { useBrand } from '@/context/BrandContext';
 
 export function DashboardMetrics() {
   const { t, isRtl } = useLanguage();
   const { metrics } = useDispatch();
+  const { createHref } = useBrand();
 
   const cards = [
     {
@@ -100,7 +102,7 @@ export function DashboardMetrics() {
         return (
           <Link
             key={card.id}
-            href={card.href}
+            href={createHref(card.href)}
             className={`group relative p-4 rounded-2xl border ${card.border} ${card.bg} shadow-sm hover:shadow-md transition-all duration-200 flex flex-col justify-between`}
           >
             <div>

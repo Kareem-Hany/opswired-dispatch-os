@@ -1,8 +1,9 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
 import { Order, OrderStatus, Driver, Store, Wallet, Transaction, CollectionStatus, OrderEvent } from '@/lib/types';
-import { initialOrders, initialDrivers, initialStores, initialWallets, initialTransactions } from '@/lib/mockData';
+import { getLocalizedMockData } from '@/lib/mockData';
+import { useBrand } from '@/context/BrandContext';
 
 interface DispatchContextType {
   orders: Order[];
@@ -35,18 +36,62 @@ interface DispatchContextType {
 const DispatchContext = createContext<DispatchContextType | undefined>(undefined);
 
 export function DispatchProvider({ children }: { children: React.ReactNode }) {
-  const [orders, setOrders] = useState<Order[]>(initialOrders);
-  const [drivers, setDrivers] = useState<Driver[]>(initialDrivers);
-  const [stores, setStores] = useState<Store[]>(initialStores);
-  const [wallets, setWallets] = useState<Wallet[]>(initialWallets);
-  const [transactions, setTransactions] = useState<Transaction[]>(initialTransactions);
+  const brand = useBrand();
+  const { city, curr, phonePrefix, driverPlateSuffix, client, zones } = brand;
+
+  // Initial localized dataset
+  const initialData = getLocalizedMockData({
+    city,
+    curr,
+    phonePrefix,
+    driverPlateSuffix,
+    client
+  });
+
+  const [orders, setOrders] = useState<Order[]>(initialData.orders);
+  const [drivers, setDrivers] = useState<Driver[]>(initialData.drivers);
+  const [stores, setStores] = useState<Store[]>(initialData.stores);
+  const [wallets, setWallets] = useState<Wallet[]>(initialData.wallets);
+  const [transactions, setTransactions] = useState<Transaction[]>(initialData.transactions);
   const [soundEnabled, setSoundEnabled] = useState<boolean>(true);
   const [isLoaded, setIsLoaded] = useState<boolean>(false);
 
-  // Load from localStorage on mount
+  const prevCityRef = useRef<string>(city);
+  const prevClientRef = useRef<string>(client);
+
+  // Re-localize if city or client changes
+  useEffect(() => {
+    if (prevCityRef.current !== city || prevClientRef.current !== client) {
+      prevCityRef.current = city;
+      prevClientRef.current = client;
+
+      const fresh = getLocalizedMockData({
+        city,
+        curr,
+        phonePrefix,
+        driverPlateSuffix,
+        client
+      });
+
+      setOrders(fresh.orders);
+      setDrivers(fresh.drivers);
+      setStores(fresh.stores);
+      setWallets(fresh.wallets);
+      setTransactions(fresh.transactions);
+
+      try {
+        localStorage.removeItem(`opswired_orders_${city}`);
+      } catch {
+        // ignore
+      }
+    }
+  }, [city, curr, phonePrefix, driverPlateSuffix, client]);
+
+  // Load from localStorage on mount for specific city
   useEffect(() => {
     try {
-      const savedOrders = localStorage.getItem('opswired_orders');
+      const storageKey = `opswired_orders_${city.toLowerCase()}`;
+      const savedOrders = localStorage.getItem(storageKey);
       if (savedOrders) {
         setOrders(JSON.parse(savedOrders));
       }
@@ -59,17 +104,18 @@ export function DispatchProvider({ children }: { children: React.ReactNode }) {
     } finally {
       setIsLoaded(true);
     }
-  }, []);
+  }, [city]);
 
   // Save orders to localStorage on change
   useEffect(() => {
     if (!isLoaded) return;
     try {
-      localStorage.setItem('opswired_orders', JSON.stringify(orders));
+      const storageKey = `opswired_orders_${city.toLowerCase()}`;
+      localStorage.setItem(storageKey, JSON.stringify(orders));
     } catch {
       // ignore
     }
-  }, [orders, isLoaded]);
+  }, [orders, isLoaded, city]);
 
   useEffect(() => {
     try {
@@ -116,7 +162,7 @@ export function DispatchProvider({ children }: { children: React.ReactNode }) {
           }`,
           description_en: note || `Dispatcher marked order as ${newStatus}`,
           description_ar: note || `قام مأمور العمليات بتحديث الحالة إلى ${newStatus}`,
-          actor: 'Fleet Ops Dispatcher'
+          actor: `${client || 'Ops'} Dispatcher`
         };
 
         const updatedCollection =
@@ -157,7 +203,7 @@ export function DispatchProvider({ children }: { children: React.ReactNode }) {
           description_ar: selectedDriver
             ? `تم إسناد الشحنة للسائق ${selectedDriver.name} (${selectedDriver.vehicle})`
             : 'تمت إعادة الشحنة لقائمة الانتظار العامة',
-          actor: 'Fleet Ops Dispatcher'
+          actor: `${client || 'Fleet'} Dispatcher`
         };
 
         return {
@@ -205,8 +251,11 @@ export function DispatchProvider({ children }: { children: React.ReactNode }) {
 
   const createOrder = (newOrderData: Partial<Order>): Order => {
     const randomSuffix = Math.floor(1000 + Math.random() * 9000);
-    const orderNumber = `SPD-2024-${randomSuffix}`;
-    const token = `SPD${randomSuffix}${Math.random().toString(36).substring(2, 4).toUpperCase()}`;
+    const prefixCode = client && client !== 'OpsWired'
+      ? client.replace(/[^A-Za-z]/g, '').slice(0, 3).toUpperCase() || 'ORD'
+      : 'SPD';
+    const orderNumber = `${prefixCode}-2024-${randomSuffix}`;
+    const token = `${prefixCode}${randomSuffix}${Math.random().toString(36).substring(2, 4).toUpperCase()}`;
     const now = new Date().toISOString();
 
     const selectedStore = stores.find(s => s.id === newOrderData.store_id) || stores[0];
@@ -215,6 +264,8 @@ export function DispatchProvider({ children }: { children: React.ReactNode }) {
     const orderAmount = Number(newOrderData.order_amount) || 250;
     const deliveryFee = Number(newOrderData.delivery_fee) || selectedStore.default_delivery_fee;
     const totalAmount = orderAmount + deliveryFee;
+
+    const defaultZone = zones[0] || 'Al-Olaya';
 
     const newOrder: Order = {
       id: `ord_${Date.now()}`,
@@ -225,19 +276,19 @@ export function DispatchProvider({ children }: { children: React.ReactNode }) {
       driver_id: selectedDriver ? selectedDriver.id : null,
       driver_name: selectedDriver ? selectedDriver.name : null,
       customer_name: newOrderData.customer_name || 'Valued Recipient',
-      customer_phone: newOrderData.customer_phone || '+974 5500 0000',
-      customer_email: newOrderData.customer_email || 'customer@qatar.qa',
+      customer_phone: newOrderData.customer_phone || `${phonePrefix} 5500 0000`,
+      customer_email: newOrderData.customer_email || 'customer@dispatch.me',
       pickup_zone: selectedStore.zone,
       pickup_address: selectedStore.address,
-      delivery_zone: newOrderData.delivery_zone || 'Lusail Marina',
-      delivery_address: newOrderData.delivery_address || 'Tower 14, Suite 302',
+      delivery_zone: newOrderData.delivery_zone || defaultZone,
+      delivery_address: newOrderData.delivery_address || `${defaultZone}, Building 4, Suite 102`,
       order_amount: orderAmount,
       delivery_fee: deliveryFee,
       total_amount: totalAmount,
       payment_method: 'cod',
       collection_status: 'pending',
       status: selectedDriver ? 'in_transit' : 'new',
-      notes: newOrderData.notes || 'Handle parcel with standard care.',
+      notes: newOrderData.notes || 'Handle parcel with standard courier care.',
       pickup_time: 'Ready for Pickup',
       delivery_time: 'Today 04:00 PM - 07:00 PM',
       created_at: now,
@@ -249,8 +300,8 @@ export function DispatchProvider({ children }: { children: React.ReactNode }) {
           type: 'created',
           title_en: 'Direct Dispatch Shipment Created',
           title_ar: 'تم إنشاء إرسالية الشحن المباشرة',
-          description_en: 'Registered into Speedoo Dispatch Sandbox',
-          description_ar: 'تم قيد الشحنة بنجاح في بيئة تشغيل سبيدو',
+          description_en: `Registered into ${client || 'OpsWired'} Dispatch Sandbox`,
+          description_ar: `تم قيد الشحنة بنجاح في بيئة تشغيل ${client || 'المنظومة'}`,
           actor: 'Ops Console'
         }
       ]
@@ -262,13 +313,22 @@ export function DispatchProvider({ children }: { children: React.ReactNode }) {
   };
 
   const resetSandbox = () => {
-    setOrders(initialOrders);
-    setDrivers(initialDrivers);
-    setStores(initialStores);
-    setWallets(initialWallets);
-    setTransactions(initialTransactions);
+    const fresh = getLocalizedMockData({
+      city,
+      curr,
+      phonePrefix,
+      driverPlateSuffix,
+      client
+    });
+
+    setOrders(fresh.orders);
+    setDrivers(fresh.drivers);
+    setStores(fresh.stores);
+    setWallets(fresh.wallets);
+    setTransactions(fresh.transactions);
+
     try {
-      localStorage.removeItem('opswired_orders');
+      localStorage.removeItem(`opswired_orders_${city.toLowerCase()}`);
     } catch {
       // ignore
     }
